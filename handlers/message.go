@@ -9,6 +9,7 @@ import (
 	"github.com/galenguyer/genericbot/config"
 	"github.com/galenguyer/genericbot/entities"
 	"github.com/galenguyer/genericbot/logging"
+	"github.com/galenguyer/genericbot/permissions"
 	"github.com/sirupsen/logrus"
 )
 
@@ -42,6 +43,7 @@ func OnMessageRecieved(s *discordgo.Session, m *discordgo.MessageCreate, config 
 				Message:       *m.Message,
 				Config:        *config,
 				ParsedCommand: *command,
+				Permissions:   getPermissions(s, m, config),
 			})
 			if err != nil {
 				logging.Logger.WithFields(logrus.Fields{
@@ -81,4 +83,28 @@ func parseCommand(message string, config *config.Config) *entities.ParsedCommand
 			ParameterString: paramString,
 		}
 	}
+}
+
+func getPermissions(s *discordgo.Session, m *discordgo.MessageCreate, config *config.Config) permissions.PermissionLevel {
+	if config.BotConfig.OwnerId == m.Author.ID {
+		return permissions.BotOwner
+	}
+
+	guild, err := s.Guild(m.GuildID)
+	if err != nil {
+		return permissions.User
+	}
+	if guild.OwnerID == m.Author.ID {
+		return permissions.GuildOwner
+	}
+
+	member, err := s.GuildMember(m.GuildID, m.Author.ID)
+	if err != nil {
+		return permissions.User
+	}
+	if member.Permissions&discordgo.PermissionAdministrator == discordgo.PermissionAdministrator {
+		return permissions.Administrator
+	}
+
+	return permissions.User
 }

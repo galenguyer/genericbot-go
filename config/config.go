@@ -18,6 +18,7 @@ var (
 type Config struct {
 	BotConfig struct {
 		Token    string       `yaml:"token" envconfig:"BOT_TOKEN"`
+		OwnerId  string       `yaml:"owner_id" envconfig:"BOT_OWNER_ID"`
 		Prefix   string       `yaml:"prefix" envconfig:"BOT_PREFIX" default:">"`
 		LogLevel logrus.Level `yaml:"log-level" envconfig:"BOT_LOG_LEVEL"`
 	} `yaml:"bot"`

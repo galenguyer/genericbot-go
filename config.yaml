@@ -1,0 +1,4 @@
+bot:
+    token: CHANGE_ME
+    prefix: ">"
+    log-level: Info

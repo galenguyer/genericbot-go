@@ -7,6 +7,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/galenguyer/genericbot/config"
+	"github.com/galenguyer/genericbot/handlers"
 	"github.com/galenguyer/genericbot/logging"
 	"github.com/servusdei2018/shards"
 	"github.com/sirupsen/logrus"
@@ -29,10 +30,10 @@ func main() {
 		logging.Logger.WithFields(logrus.Fields{"error": err, "module": "genericbot", "method": "main"}).Error("error creating shard manager")
 	}
 
-	manager.RegisterIntent(discordgo.IntentsAllWithoutPrivileged)
-	manager.RegisterIntent(discordgo.IntentsGuildMembers)
+	manager.RegisterIntent(discordgo.IntentsAllWithoutPrivileged | discordgo.IntentsGuildMembers)
 
 	manager.AddHandler(onShardConnect)
+	manager.AddHandler(messageCreate(*config))
 
 	err = manager.Start()
 	if err != nil {
@@ -51,4 +52,10 @@ func main() {
 
 func onShardConnect(s *discordgo.Session, evt *discordgo.Connect) {
 	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "onShardConnect", "shard": s.ShardID}).Info("shard connected")
+}
+
+func messageCreate(config config.Config) func(*discordgo.Session, *discordgo.MessageCreate) {
+	return func(s *discordgo.Session, m *discordgo.MessageCreate) {
+		handlers.OnMessageRecieved(s, m, &config)
+	}
 }

@@ -1,0 +1,6 @@
+version: "3"
+services:
+  genericbot:
+    build: .
+    container_name: genericbot
+    env_file: .env

@@ -16,3 +16,6 @@ vendor/
 
 # Logs
 logs/
+
+# Configuration files
+.env

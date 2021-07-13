@@ -8,9 +8,7 @@ import (
 	"github.com/galenguyer/genericbot/commands"
 	"github.com/galenguyer/genericbot/config"
 	"github.com/galenguyer/genericbot/entities"
-	"github.com/galenguyer/genericbot/logging"
 	"github.com/galenguyer/genericbot/permissions"
-	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -29,14 +27,7 @@ func OnMessageRecieved(s *discordgo.Session, m *discordgo.MessageCreate, config 
 		})
 
 		if commandToExecute != nil {
-			logging.Logger.WithFields(logrus.Fields{
-				"module":  "handlers",
-				"method":  "OnMessageRecieved",
-				"guild":   m.GuildID,
-				"channel": m.ChannelID,
-				"command": commandToExecute.(*entities.Command).Name,
-			}).Info("got command " + commandToExecute.(*entities.Command).Name)
-			err := commandToExecute.(*entities.Command).Execute(entities.Context{
+			commandToExecute.(*entities.Command).Execute(entities.Context{
 				Session:       s,
 				GuildId:       m.GuildID,
 				ChannelId:     m.ChannelID,
@@ -45,16 +36,6 @@ func OnMessageRecieved(s *discordgo.Session, m *discordgo.MessageCreate, config 
 				ParsedCommand: *command,
 				Permissions:   getPermissions(s, m, config),
 			})
-			if err != nil {
-				logging.Logger.WithFields(logrus.Fields{
-					"error":   err,
-					"module":  "handlers",
-					"method":  "OnMessageRecieved",
-					"guild":   m.GuildID,
-					"channel": m.ChannelID,
-					"command": commandToExecute.(*entities.Command).Name,
-				}).Error("error executing command " + commandToExecute.(*entities.Command).Name)
-			}
 		}
 	}
 }

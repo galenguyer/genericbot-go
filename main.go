@@ -29,6 +29,9 @@ func main() {
 		logging.Logger.WithFields(logrus.Fields{"error": err, "module": "genericbot", "method": "main"}).Error("error creating shard manager")
 	}
 
+	manager.RegisterIntent(discordgo.IntentsAllWithoutPrivileged)
+	manager.RegisterIntent(discordgo.IntentsGuildMembers)
+
 	manager.AddHandler(onShardConnect)
 
 	err = manager.Start()
@@ -38,7 +41,7 @@ func main() {
 
 	// wait for ^C to exit
 	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
 
 	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "main"}).Infof("stopping shard manager with %d shards", manager.ShardCount)

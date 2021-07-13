@@ -21,7 +21,6 @@ func init() {
 }
 
 func OnMessageRecieved(s *discordgo.Session, m *discordgo.MessageCreate, config *config.Config) {
-	logging.Logger.Debug("[genericbot][main] got message", m.Message.Content)
 	command := parseCommand(m.Message.Content, config)
 	if command != nil {
 		commandToExecute := linq.From(Commands).FirstWith(func(i interface{}) bool {
@@ -30,10 +29,13 @@ func OnMessageRecieved(s *discordgo.Session, m *discordgo.MessageCreate, config 
 
 		if commandToExecute != nil {
 			logging.Logger.WithFields(logrus.Fields{
-				"module": "handlers",
-				"method": "OnMessageRecieved",
+				"module":  "handlers",
+				"method":  "OnMessageRecieved",
+				"guild":   m.GuildID,
+				"channel": m.ChannelID,
+				"command": commandToExecute.(*entities.Command).Name,
 			}).Info("got command " + commandToExecute.(*entities.Command).Name)
-			commandToExecute.(*entities.Command).Execute(entities.Context{
+			err := commandToExecute.(*entities.Command).Execute(entities.Context{
 				Session:       s,
 				GuildId:       m.GuildID,
 				ChannelId:     m.ChannelID,
@@ -41,6 +43,16 @@ func OnMessageRecieved(s *discordgo.Session, m *discordgo.MessageCreate, config 
 				Config:        *config,
 				ParsedCommand: *command,
 			})
+			if err != nil {
+				logging.Logger.WithFields(logrus.Fields{
+					"error":   err,
+					"module":  "handlers",
+					"method":  "OnMessageRecieved",
+					"guild":   m.GuildID,
+					"channel": m.ChannelID,
+					"command": commandToExecute.(*entities.Command).Name,
+				}).Error("error executing command " + commandToExecute.(*entities.Command).Name)
+			}
 		}
 	}
 }

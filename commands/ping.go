@@ -8,12 +8,12 @@ import (
 var Ping = &entities.Command{
 	Name: "ping",
 	Execute: func(c entities.Context) error {
-		c.Session.ChannelMessageSendComplex(c.Message.ChannelID, &discordgo.MessageSend{
+		_, err := c.Session.ChannelMessageSendComplex(c.Message.ChannelID, &discordgo.MessageSend{
 			Content:         "pong!",
 			TTS:             false,
 			AllowedMentions: &discordgo.MessageAllowedMentions{},
 			Reference:       c.Message.Reference(),
 		})
-		return nil
+		return err
 	},
 }

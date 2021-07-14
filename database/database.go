@@ -14,25 +14,20 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-type Database struct {
-	client *mongo.Client
-}
+var Client = Connect()
 
-func Connect(config config.Config) Database {
+func Connect() *mongo.Client {
 	logging.Logger.WithFields(logrus.Fields{"module": "database", "method": "Connect"}).Info("beginning database connection")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
 	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.DatabaseConfig.Uri))
+	// we can do this safely because we've already checked the config
+	conf, _ := config.Load()
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(conf.DatabaseConfig.Uri))
 	if err != nil {
 		logging.Logger.WithFields(logrus.Fields{"error": err, "module": "database", "method": "Connect"}).Fatal("error connecting to database")
 	}
-
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			logging.Logger.WithFields(logrus.Fields{"error": err, "module": "database", "method": "Connect"}).Fatal("disconnected from database")
-		}
-	}()
 
 	if err := client.Ping(ctx, readpref.Primary()); err != nil {
 		logging.Logger.WithFields(logrus.Fields{"error": err, "module": "database", "method": "Connect"}).Fatal("error pinging database")
@@ -40,17 +35,26 @@ func Connect(config config.Config) Database {
 
 	logging.Logger.WithFields(logrus.Fields{"module": "database", "method": "Connect"}).Info("connected to mongodb")
 
-	return Database{
-		client: client,
-	}
+	return client
 }
 
-func (d Database) GetGuildConfig(guildId string) (*entities.GuildConfig, error) {
+func Disconnect() {
+	ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
+	defer cancel()
+
+	if err := Client.Disconnect(ctx); err != nil {
+		logging.Logger.WithFields(logrus.Fields{"error": err, "module": "database", "method": "Disconnect"}).Fatal("error disconnecting from database")
+	}
+
+	logging.Logger.WithFields(logrus.Fields{"module": "database", "method": "Disconnect"}).Info("disconnected from database")
+}
+
+func GetGuildConfig(guildId string) (*entities.GuildConfig, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	var config entities.GuildConfig
-	err := d.client.Database(guildId).Collection("guildConfig").FindOne(ctx, bson.D{}).Decode(&config)
+	err := Client.Database(guildId).Collection("guildConfig").FindOne(ctx, bson.D{}).Decode(&config)
 	if err == mongo.ErrNoDocuments {
 		config = entities.GuildConfig{
 			Prefix:                       "",

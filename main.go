@@ -23,8 +23,7 @@ func main() {
 		logging.Logger.WithFields(logrus.Fields{"error": err, "module": "genericbot", "method": "main"}).Fatal("fatal error loading configuration")
 	}
 
-	db := database.Connect(*config)
-	_ = db
+	database.GetGuildConfig("351231282157453322")
 
 	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "main"}).Info("starting genericbot")
 	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "main"}).Info("using prefix " + config.BotConfig.Prefix)
@@ -50,6 +49,8 @@ func main() {
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
 
+	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "main"}).Info("beginning database disconnect")
+	database.Disconnect()
 	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "main"}).Infof("stopping shard manager with %d shards", manager.ShardCount)
 	manager.Shutdown()
 	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "main"}).Info("stopped shard manager")

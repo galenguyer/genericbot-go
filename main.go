@@ -23,8 +23,6 @@ func main() {
 		logging.Logger.WithFields(logrus.Fields{"error": err, "module": "genericbot", "method": "main"}).Fatal("fatal error loading configuration")
 	}
 
-	database.GetGuildConfig("351231282157453322")
-
 	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "main"}).Info("starting genericbot")
 	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "main"}).Info("using prefix " + config.BotConfig.Prefix)
 	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "main"}).Info("using log level " + config.BotConfig.LogLevel.String())

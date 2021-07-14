@@ -18,6 +18,7 @@ var (
 func init() {
 	Commands = append(Commands, commands.Ping)
 	Commands = append(Commands, commands.Config)
+	Commands = append(Commands, commands.Migrate)
 }
 
 func OnMessageRecieved(s *discordgo.Session, m *discordgo.MessageCreate, config *config.Config) {

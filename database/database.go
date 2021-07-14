@@ -50,6 +50,8 @@ func Disconnect() {
 }
 
 func GetGuildConfig(guildId string) (*entities.GuildConfig, error) {
+	logging.Logger.WithFields(logrus.Fields{"module": "database", "method": "Disconnect", "guild": guildId}).Info("getting guild config")
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -57,27 +59,41 @@ func GetGuildConfig(guildId string) (*entities.GuildConfig, error) {
 	err := Client.Database(guildId).Collection("guildConfig").FindOne(ctx, bson.D{}).Decode(&config)
 	if err == mongo.ErrNoDocuments {
 		config = entities.GuildConfig{
-			Prefix:                       "",
-			AdminRoleIds:                 []string{},
-			ModRoleIds:                   []string{},
-			UserRoleIds:                  []string{},
-			RequiresRoles:                make(map[string][]string),
-			MutedRoleId:                  "",
-			MutedUsers:                   make(map[string]time.Time),
-			AutoRoleIds:                  []string{},
-			MessageLoggingChannelId:      "",
-			UserLoggingChannelId:         "",
-			MessageLoggingIgnoreChannels: []string{},
-			VerifiedRoleId:               "",
-			VerificationMessage:          "",
-			JoinMessage:                  "",
-			JoinMessageChannelId:         "",
-			PointsEnabled:                false,
-			TrustedRoleId:                "",
-			TrustedRolePointsThreshold:   -1,
+			Prefix:                         "",
+			AdminRoleIds:                   []string{},
+			ModRoleIds:                     []string{},
+			UserRoleIds:                    []string{},
+			RequiresRoles:                  make(map[string][]string),
+			MutedRoleId:                    "",
+			MutedUsers:                     make(map[string]time.Time),
+			AutoRoleIds:                    []string{},
+			MessageLoggingChannelId:        "",
+			UserLoggingChannelId:           "",
+			MessageLoggingIgnoreChannelIds: []string{},
+			VerifiedRoleId:                 "",
+			VerificationMessage:            "",
+			JoinMessage:                    "",
+			JoinMessageChannelId:           "",
+			PointsEnabled:                  false,
+			TrustedRoleId:                  "",
+			TrustedRolePointsThreshold:     -1,
 		}
 	} else if err != nil {
 		logging.Logger.WithFields(logrus.Fields{"error": err, "module": "database", "method": "GetGuildConfig"}).Error("error getting guildconfig")
 	}
 	return &config, nil
+}
+
+func SaveGuildConfig(guildId string, guildConfig entities.GuildConfig) error {
+	logging.Logger.WithFields(logrus.Fields{"module": "database", "method": "SaveGuildConfig", "guild": guildId}).Info("saving guild config")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	err := Client.Database(guildId).Collection("guildConfig").FindOneAndReplace(ctx, bson.D{}, guildConfig).Err()
+	if err == mongo.ErrNoDocuments {
+		_, err = Client.Database(guildId).Collection("guildConfig").InsertOne(ctx, guildConfig)
+		return err
+	}
+	return err
 }

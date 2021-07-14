@@ -7,6 +7,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/galenguyer/genericbot/config"
+	"github.com/galenguyer/genericbot/database"
 	"github.com/galenguyer/genericbot/handlers"
 	"github.com/galenguyer/genericbot/logging"
 	"github.com/servusdei2018/shards"
@@ -21,6 +22,10 @@ func main() {
 	if err = config.Validate(); err != nil {
 		logging.Logger.WithFields(logrus.Fields{"error": err, "module": "genericbot", "method": "main"}).Fatal("fatal error loading configuration")
 	}
+
+	db := database.Connect(*config)
+	_ = db
+
 	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "main"}).Info("starting genericbot")
 	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "main"}).Info("using prefix " + config.BotConfig.Prefix)
 	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "main"}).Info("using log level " + config.BotConfig.LogLevel.String())

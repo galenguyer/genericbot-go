@@ -2,3 +2,5 @@ bot:
     token: CHANGE_ME
     prefix: ">"
     log-level: Info
+database:
+    uri: "mongodb://127.0.0.1:27017"

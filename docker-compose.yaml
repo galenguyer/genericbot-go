@@ -4,3 +4,16 @@ services:
     build: .
     container_name: genericbot
     env_file: .env
+  mongodb:
+    image: mongo:5.0.0-focal
+    container_name: mongodb
+    command: "mongod --bind_ip 0.0.0.0"
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - type: volume
+        source: mongodb
+        target: /data/db
+
+volumes:
+  mongodb:

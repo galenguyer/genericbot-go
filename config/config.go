@@ -22,6 +22,9 @@ type Config struct {
 		Prefix   string       `yaml:"prefix" envconfig:"BOT_PREFIX" default:">"`
 		LogLevel logrus.Level `yaml:"log-level" envconfig:"BOT_LOG_LEVEL"`
 	} `yaml:"bot"`
+	DatabaseConfig struct {
+		Uri string `yaml:"uri" envconfig:"DATABASE_URI"`
+	} `yaml:"database"`
 }
 
 // Load is called to return a Config struct constructed from the

@@ -1,10 +1,9 @@
 package commands
 
 import (
-	"encoding/json"
-
 	"github.com/galenguyer/genericbot/database"
 	"github.com/galenguyer/genericbot/entities"
+	"github.com/galenguyer/genericbot/json"
 )
 
 var Config = &entities.Command{
@@ -17,7 +16,7 @@ var Config = &entities.Command{
 			c.Reply("An error occured retrieving the configuration for your server")
 			return err
 		}
-		jsonConf, _ := json.MarshalIndent(conf, "", "    ")
+		jsonConf, _ := json.JSONMarshalIndented(conf, "", "    ")
 		_, err = c.Reply("```\n" + string(jsonConf) + "\n```")
 		return err
 	},

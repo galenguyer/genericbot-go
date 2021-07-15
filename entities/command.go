@@ -8,6 +8,8 @@ import (
 
 type Command struct {
 	Name        string
+	Description string
+	Usage       string
 	Permissions permissions.PermissionLevel
 	Action      func(Context) error
 }

@@ -8,10 +8,11 @@ import (
 )
 
 var Ping = &entities.Command{
-	Name: "ping",
+	Name:        "ping",
+	Description: "Get the time taken for the bot to reply to a message",
 	Action: func(c entities.Context) error {
 		msg, err := c.Session.ChannelMessageSendComplex(c.Message.ChannelID, &discordgo.MessageSend{
-			Content:         "pong!",
+			Content:         "Pong!",
 			TTS:             false,
 			AllowedMentions: &discordgo.MessageAllowedMentions{},
 			Reference:       c.Message.Reference(),
@@ -23,7 +24,7 @@ var Ping = &entities.Command{
 		cmdCreation, _ := discordgo.SnowflakeTimestamp(c.Message.ID)
 		rplCreation, _ := discordgo.SnowflakeTimestamp(msg.ID)
 		timeDiff := rplCreation.Sub(cmdCreation)
-		diffString := fmt.Sprintf("pong! time taken: `%dms`", timeDiff.Milliseconds())
+		diffString := fmt.Sprintf("Pong! Time taken: `%dms`", timeDiff.Milliseconds())
 
 		_, err = c.Session.ChannelMessageEditComplex(
 			&discordgo.MessageEdit{

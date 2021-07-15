@@ -9,7 +9,9 @@ import (
 )
 
 var Config = &entities.Command{
-	Name: "config",
+	Name:        "config",
+	Description: "Get or set the server configuration",
+	Usage:       "<option> <value>",
 	Action: func(c entities.Context) error {
 		conf, err := database.GetGuildConfig(c.GuildId)
 		if err != nil {

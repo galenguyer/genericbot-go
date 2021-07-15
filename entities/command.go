@@ -20,6 +20,7 @@ func (c Command) Execute(ctx Context) {
 		"method":  "OnMessageRecieved",
 		"guild":   ctx.Message.GuildID,
 		"channel": ctx.Message.ChannelID,
+		"author":  ctx.Message.Author.ID,
 		"command": c.Name,
 	}).Info("got command " + c.Name)
 
@@ -36,6 +37,7 @@ func (c Command) Execute(ctx Context) {
 				"method":  "Execute",
 				"guild":   ctx.Message.GuildID,
 				"channel": ctx.Message.ChannelID,
+				"author":  ctx.Message.Author.ID,
 				"command": c.Name,
 			}).Error("error executing command " + c.Name)
 		}

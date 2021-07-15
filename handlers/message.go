@@ -8,7 +8,9 @@ import (
 	"github.com/galenguyer/genericbot/commands"
 	"github.com/galenguyer/genericbot/config"
 	"github.com/galenguyer/genericbot/entities"
+	"github.com/galenguyer/genericbot/logging"
 	"github.com/galenguyer/genericbot/permissions"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -17,8 +19,10 @@ var (
 
 func init() {
 	Commands = append(Commands, commands.Ping)
+	Commands = append(Commands, commands.Echo)
 	Commands = append(Commands, commands.Config)
 	Commands = append(Commands, commands.Migrate)
+	logging.Logger.WithFields(logrus.Fields{"module": "handlers", "method": "init"}).Infof("loaded %d commands", len(Commands))
 }
 
 func OnMessageRecieved(s *discordgo.Session, m *discordgo.MessageCreate, config *config.Config) {

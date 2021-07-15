@@ -2,5 +2,6 @@ bot:
     token: CHANGE_ME
     prefix: ">"
     log-level: Info
+    owner_id: 169918990313848832
 database:
     uri: "mongodb://127.0.0.1:27017"

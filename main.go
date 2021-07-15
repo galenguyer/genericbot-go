@@ -35,6 +35,7 @@ func main() {
 	manager.RegisterIntent(discordgo.IntentsAllWithoutPrivileged | discordgo.IntentsGuildMembers)
 
 	manager.AddHandler(onShardConnect)
+	manager.AddHandler(onShardDisconnect)
 	manager.AddHandler(messageCreate(*config))
 
 	err = manager.Start()
@@ -56,6 +57,9 @@ func main() {
 
 func onShardConnect(s *discordgo.Session, evt *discordgo.Connect) {
 	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "onShardConnect", "shard": s.ShardID}).Info("shard connected")
+}
+func onShardDisconnect(s *discordgo.Session, evt *discordgo.Disconnect) {
+	logging.Logger.WithFields(logrus.Fields{"module": "genericbot", "method": "onShardDisconnect", "shard": s.ShardID}).Info("shard disconnected")
 }
 
 func messageCreate(config config.Config) func(*discordgo.Session, *discordgo.MessageCreate) {

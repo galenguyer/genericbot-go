@@ -3,7 +3,6 @@ package commands
 import (
 	"encoding/json"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/galenguyer/genericbot/database"
 	"github.com/galenguyer/genericbot/entities"
 )
@@ -15,21 +14,11 @@ var Config = &entities.Command{
 	Action: func(c entities.Context) error {
 		conf, err := database.GetGuildConfig(c.GuildId)
 		if err != nil {
-			c.Session.ChannelMessageSendComplex(c.Message.ChannelID, &discordgo.MessageSend{
-				Content:         "An error occured retrieving the configuration for your server",
-				TTS:             false,
-				AllowedMentions: &discordgo.MessageAllowedMentions{},
-				Reference:       c.Message.Reference(),
-			})
+			c.Reply("An error occured retrieving the configuration for your server")
 			return err
 		}
 		jsonConf, _ := json.MarshalIndent(conf, "", "    ")
-		_, err = c.Session.ChannelMessageSendComplex(c.Message.ChannelID, &discordgo.MessageSend{
-			Content:         "```\n" + string(jsonConf) + "\n```",
-			TTS:             false,
-			AllowedMentions: &discordgo.MessageAllowedMentions{},
-			Reference:       c.Message.Reference(),
-		})
+		_, err = c.Reply("```\n" + string(jsonConf) + "\n```")
 		return err
 	},
 }
@@ -39,32 +28,17 @@ var Migrate = &entities.Command{
 	Action: func(c entities.Context) error {
 		conf, err := database.ConvertLegacyGuildConfig(c.GuildId)
 		if err != nil {
-			c.Session.ChannelMessageSendComplex(c.Message.ChannelID, &discordgo.MessageSend{
-				Content:         "An error occured retrieving the configuration for your server",
-				TTS:             false,
-				AllowedMentions: &discordgo.MessageAllowedMentions{},
-				Reference:       c.Message.Reference(),
-			})
+			c.Reply("An error occured retrieving the configuration for your server")
 			return err
 		}
 
 		err = database.SaveGuildConfig(c.GuildId, *conf)
 		if err != nil {
-			c.Session.ChannelMessageSendComplex(c.Message.ChannelID, &discordgo.MessageSend{
-				Content:         "An error occured saving the configuration for your server",
-				TTS:             false,
-				AllowedMentions: &discordgo.MessageAllowedMentions{},
-				Reference:       c.Message.Reference(),
-			})
+			c.Reply("An error occured saving the configuration for your server")
 			return err
 		}
 
-		_, err = c.Session.ChannelMessageSendComplex(c.Message.ChannelID, &discordgo.MessageSend{
-			Content:         "migrated guildconfig",
-			TTS:             false,
-			AllowedMentions: &discordgo.MessageAllowedMentions{},
-			Reference:       c.Message.Reference(),
-		})
+		_, err = c.Reply("migrated guildconfig")
 		return err
 	},
 }

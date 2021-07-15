@@ -11,12 +11,7 @@ var Ping = &entities.Command{
 	Name:        "ping",
 	Description: "Get the time taken for the bot to reply to a message",
 	Action: func(c entities.Context) error {
-		msg, err := c.Session.ChannelMessageSendComplex(c.Message.ChannelID, &discordgo.MessageSend{
-			Content:         "Pong!",
-			TTS:             false,
-			AllowedMentions: &discordgo.MessageAllowedMentions{},
-			Reference:       c.Message.Reference(),
-		})
+		msg, err := c.Reply("Pong!")
 		if err != nil {
 			return err
 		}

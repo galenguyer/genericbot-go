@@ -15,3 +15,13 @@ type Context struct {
 	ParsedCommand ParsedCommand
 	Permissions   permissions.PermissionLevel
 }
+
+func (ctx Context) Reply(message string) (*discordgo.Message, error) {
+	return ctx.Session.ChannelMessageSendComplex(ctx.Message.ChannelID, &discordgo.MessageSend{
+		Content:         message,
+		TTS:             false,
+		AllowedMentions: &discordgo.MessageAllowedMentions{},
+		Reference:       ctx.Message.Reference(),
+	})
+
+}

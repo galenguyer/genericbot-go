@@ -59,10 +59,11 @@ func GetGuildConfig(guildId string) (*entities.GuildConfig, error) {
 	err := Client.Database(guildId).Collection("guildConfig").FindOne(ctx, bson.D{}).Decode(&config)
 	if err == mongo.ErrNoDocuments {
 		config = entities.GuildConfig{
+			GuildId:                        guildId,
 			Prefix:                         "",
 			AdminRoleIds:                   []string{},
 			ModRoleIds:                     []string{},
-			UserRoleIds:                    []string{},
+			UserRoleIds:                    make(map[string][]string),
 			RequiresRoles:                  make(map[string][]string),
 			MutedRoleId:                    "",
 			MutedUsers:                     make(map[string]time.Time),
@@ -90,9 +91,9 @@ func SaveGuildConfig(guildId string, guildConfig entities.GuildConfig) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	err := Client.Database(guildId).Collection("guildConfig").FindOneAndReplace(ctx, bson.D{}, guildConfig).Err()
+	err := Client.Database(guildId).Collection("config").FindOneAndReplace(ctx, bson.D{{Key: "_id", Value: guildId}}, guildConfig).Err()
 	if err == mongo.ErrNoDocuments {
-		_, err = Client.Database(guildId).Collection("guildConfig").InsertOne(ctx, guildConfig)
+		_, err = Client.Database(guildId).Collection("config").InsertOne(ctx, guildConfig)
 		return err
 	}
 	return err

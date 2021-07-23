@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/galenguyer/genericbot/entities"
@@ -22,7 +23,7 @@ func ConvertLegacyGuildConfig(guildId string) (*entities.GuildConfig, error) {
 		Prefix                       string
 		AdminRoleIds                 []uint64
 		ModRoleIds                   []uint64
-		UserRoleIds                  []uint64
+		UserRoleIds                  [][]interface{} `bson:"UserRoles"`
 		MutedRoleId                  uint64
 		MutedUsers                   []uint64
 		AutoRoleIds                  []uint64
@@ -37,14 +38,14 @@ func ConvertLegacyGuildConfig(guildId string) (*entities.GuildConfig, error) {
 		TrustedRolePointsThreshold   int
 	}
 
-	err := Client.Database(guildId+"-legacy").Collection("config").FindOne(ctx, bson.D{}).Decode(&legConf)
+	err := Client.Database(guildId).Collection("config").FindOne(ctx, bson.D{}).Decode(&legConf)
 	if err == mongo.ErrNoDocuments {
 		logging.Logger.WithFields(logrus.Fields{"module": "database", "method": "ConvertLegacyGuildConfig", "guild": guildId}).Info("no guild config found")
 		return &entities.GuildConfig{
 			Prefix:                         "",
 			AdminRoleIds:                   []string{},
 			ModRoleIds:                     []string{},
-			UserRoleIds:                    []string{},
+			UserRoleIds:                    make(map[string][]string),
 			RequiresRoles:                  make(map[string][]string),
 			MutedRoleId:                    "",
 			MutedUsers:                     make(map[string]time.Time),
@@ -72,9 +73,19 @@ func ConvertLegacyGuildConfig(guildId string) (*entities.GuildConfig, error) {
 	for _, role := range legConf.ModRoleIds {
 		newModRoleIds = append(newModRoleIds, fmt.Sprint(role))
 	}
-	var newUserRoleIds []string
-	for _, role := range legConf.UserRoleIds {
-		newUserRoleIds = append(newUserRoleIds, fmt.Sprint(role))
+	var newUserRoleIds = make(map[string][]string)
+	for _, arr := range legConf.UserRoleIds {
+		switch reflect.TypeOf(arr[1]).Kind() {
+		case reflect.Slice:
+			key := fmt.Sprint(arr[0])
+			if key == "" {
+				key = "Ungrouped"
+			}
+			newUserRoleIds[key] = make([]string, reflect.ValueOf(arr[1]).Len())
+			for i := 0; i < reflect.ValueOf(arr[1]).Len(); i++ {
+				newUserRoleIds[key][i] = fmt.Sprint(reflect.ValueOf(arr[1]).Index(i))
+			}
+		}
 	}
 	var newRequiresRoles = make(map[string][]string)
 	var newAutoRoleIds []string
@@ -87,6 +98,7 @@ func ConvertLegacyGuildConfig(guildId string) (*entities.GuildConfig, error) {
 	}
 
 	return &entities.GuildConfig{
+		GuildId:                        guildId,
 		Prefix:                         legConf.Prefix,
 		AdminRoleIds:                   newAdminRoleIds,
 		ModRoleIds:                     newModRoleIds,

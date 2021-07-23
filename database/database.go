@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/galenguyer/genericbot/config"
@@ -56,7 +57,10 @@ func GetGuildConfig(guildId string) (*entities.GuildConfig, error) {
 	defer cancel()
 
 	var config entities.GuildConfig
-	err := Client.Database(guildId).Collection("guildConfig").FindOne(ctx, bson.D{}).Decode(&config)
+	findOptions := options.FindOne()
+	findOptions.SetSort(bson.D{{Key: "_id", Value: -1}})
+	err := Client.Database(guildId).Collection("config").FindOne(ctx, bson.D{}, findOptions).Decode(&config)
+
 	if err == mongo.ErrNoDocuments {
 		config = entities.GuildConfig{
 			GuildId:                        guildId,
@@ -85,16 +89,17 @@ func GetGuildConfig(guildId string) (*entities.GuildConfig, error) {
 	return &config, nil
 }
 
-func SaveGuildConfig(guildId string, guildConfig entities.GuildConfig) error {
+func SaveGuildConfig(guildId string, messageId string, guildConfig entities.GuildConfig) error {
 	logging.Logger.WithFields(logrus.Fields{"module": "database", "method": "SaveGuildConfig", "guild": guildId}).Info("saving guild config")
 
+	// set up context
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	err := Client.Database(guildId).Collection("config").FindOneAndReplace(ctx, bson.D{{Key: "_id", Value: guildId}}, guildConfig).Err()
-	if err == mongo.ErrNoDocuments {
-		_, err = Client.Database(guildId).Collection("config").InsertOne(ctx, guildConfig)
-		return err
-	}
+	// update id field for guildconfig
+	guildConfig.MessageId, _ = strconv.ParseUint(messageId, 10, 64)
+
+	// insert document
+	_, err := Client.Database(guildId).Collection("config").InsertOne(ctx, guildConfig)
 	return err
 }

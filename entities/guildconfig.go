@@ -3,7 +3,8 @@ package entities
 import "time"
 
 type GuildConfig struct {
-	GuildId                        string               `bson:"_id" json:"GuildId"`
+	MessageId                      uint64               `bson:"_id" json:"MessageId"`
+	GuildId                        string               `bson:"GuildId" json:"GuildId"`
 	Prefix                         string               `bson:"Prefix" json:"Prefix"`
 	AdminRoleIds                   []string             `bson:"AdminRoleIds" json:"AdminRoleIds"`
 	ModRoleIds                     []string             `bson:"ModRoleIds" json:"ModRoleIds"`

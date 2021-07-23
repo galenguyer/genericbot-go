@@ -31,7 +31,7 @@ var Migrate = &entities.Command{
 			return err
 		}
 
-		err = database.SaveGuildConfig(c.GuildId, *conf)
+		err = database.SaveGuildConfig(c.GuildId, c.Message.ID, *conf)
 		if err != nil {
 			c.Reply("An error occured saving the configuration for your server")
 			return err

@@ -23,6 +23,10 @@ type Context struct {
 }
 
 func (ctx Context) Reply(message string) (*discordgo.Message, error) {
+	return ctx.ReplyFile(message)
+}
+
+func (ctx Context) ReplyFile(message string) (*discordgo.Message, error) {
 	if len(message) > 2000 {
 		tmpFile, err := ioutil.TempFile(os.TempDir(), "reply-*.txt")
 		if err != nil {

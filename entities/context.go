@@ -23,7 +23,7 @@ type Context struct {
 }
 
 func (ctx Context) Reply(message string) (*discordgo.Message, error) {
-	return ctx.ReplyFile(message)
+	return ctx.ReplySplit(message)
 }
 
 func (ctx Context) ReplyFile(message string) (*discordgo.Message, error) {
@@ -67,4 +67,51 @@ func (ctx Context) ReplyFile(message string) (*discordgo.Message, error) {
 			Reference:       ctx.Message.Reference(),
 		})
 	}
+}
+
+func (ctx Context) ReplySplit(message string) (*discordgo.Message, error) {
+	if len(message) > 2000 {
+		messages := splitMessage(message)
+		var finalMessage *discordgo.Message
+		for _, msg := range messages {
+			var err error
+			finalMessage, err = ctx.ReplyFile(msg)
+			if err != nil {
+				return nil, err
+			}
+		}
+		return finalMessage, nil
+	} else {
+		return ctx.Session.ChannelMessageSendComplex(ctx.Message.ChannelID, &discordgo.MessageSend{
+			Content:         message,
+			TTS:             false,
+			AllowedMentions: &discordgo.MessageAllowedMentions{},
+			Reference:       ctx.Message.Reference(),
+		})
+	}
+}
+
+// TODO: Markdown handling
+func splitMessage(message string) []string {
+	var output []string
+	delimiter := "\n"
+	// fallbackDelimiter := " "
+	maxLength := 1800
+	components := strings.Split(message, delimiter)
+
+	var aggregator = ""
+	for i, component := range components {
+		if len(aggregator)+len(component) > maxLength {
+			output = append(output, aggregator)
+			aggregator = component
+		} else {
+			aggregator += component
+			if i < len(components)-1 {
+				aggregator += delimiter
+			}
+		}
+	}
+
+	output = append(output, aggregator)
+	return output
 }

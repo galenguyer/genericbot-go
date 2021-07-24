@@ -17,7 +17,7 @@ var Config = &entities.Command{
 			return err
 		}
 		jsonConf, _ := json.JSONMarshalIndented(conf, "", "    ")
-		_, err = c.Reply("```\n" + string(jsonConf) + "\n```")
+		_, err = c.ReplyFile("```\n" + string(jsonConf) + "\n```")
 		return err
 	},
 }

@@ -23,7 +23,7 @@ type Context struct {
 }
 
 func (ctx Context) Reply(message string) (*discordgo.Message, error) {
-	return ctx.ReplySplit(message)
+	return ctx.ReplySplit(message, " ")
 }
 
 func (ctx Context) ReplyFile(message string) (*discordgo.Message, error) {
@@ -69,9 +69,9 @@ func (ctx Context) ReplyFile(message string) (*discordgo.Message, error) {
 	}
 }
 
-func (ctx Context) ReplySplit(message string) (*discordgo.Message, error) {
+func (ctx Context) ReplySplit(message, delimiter string) (*discordgo.Message, error) {
 	if len(message) > 2000 {
-		messages := splitMessage(message)
+		messages := splitMessage(message, delimiter)
 		var finalMessage *discordgo.Message
 		for _, msg := range messages {
 			var err error
@@ -92,10 +92,9 @@ func (ctx Context) ReplySplit(message string) (*discordgo.Message, error) {
 }
 
 // TODO: Markdown handling
-func splitMessage(message string) []string {
+func splitMessage(message, delimiter string) []string {
 	var output []string
-	delimiter := "\n"
-	// fallbackDelimiter := " "
+	//fallbackDelimiter := " "
 	maxLength := 1800
 	components := strings.Split(message, delimiter)
 

@@ -18,10 +18,11 @@ var (
 )
 
 func init() {
-	Commands = append(Commands, commands.Ping)
-	Commands = append(Commands, commands.Echo)
 	Commands = append(Commands, commands.Config)
+	Commands = append(Commands, commands.Echo)
 	Commands = append(Commands, commands.Migrate)
+	Commands = append(Commands, commands.Mock)
+	Commands = append(Commands, commands.Ping)
 	Commands = append(Commands, commands.Time)
 	logging.Logger.WithFields(logrus.Fields{"module": "handlers", "method": "init"}).Infof("loaded %d commands", len(Commands))
 }

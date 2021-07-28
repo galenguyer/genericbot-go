@@ -21,23 +21,3 @@ var Config = &entities.Command{
 		return err
 	},
 }
-
-var Migrate = &entities.Command{
-	Name: "migrate",
-	Action: func(c entities.Context) error {
-		conf, err := database.ConvertLegacyGuildConfig(c.GuildId)
-		if err != nil {
-			c.Reply("An error occured retrieving the configuration for your server")
-			return err
-		}
-
-		err = database.SaveGuildConfig(c.GuildId, c.Message.ID, *conf)
-		if err != nil {
-			c.Reply("An error occured saving the configuration for your server")
-			return err
-		}
-
-		_, err = c.Reply("migrated guildconfig")
-		return err
-	},
-}

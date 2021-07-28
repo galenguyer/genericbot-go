@@ -16,7 +16,7 @@ services:
       - type: volume
         source: mongodb
         target: /data/db
-      - ./devdump.tar:/tmp/db.tar
+#      - ./devdump.tar:/tmp/db.tar
 
 volumes:
   mongodb:

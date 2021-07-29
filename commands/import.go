@@ -9,6 +9,7 @@ import (
 
 	"github.com/galenguyer/genericbot/database"
 	"github.com/galenguyer/genericbot/entities"
+	"github.com/galenguyer/genericbot/legacy"
 	"github.com/galenguyer/genericbot/logging"
 	"github.com/galenguyer/genericbot/permissions"
 	"github.com/sirupsen/logrus"
@@ -19,24 +20,6 @@ var Import = &entities.Command{
 	Description: "Import data from json",
 	Permissions: permissions.BotOwner,
 	Action: func(c entities.Context) error {
-		type legConfS struct {
-			Prefix                       string
-			AdminRoleIds                 []uint64
-			ModRoleIds                   []uint64
-			UserRoles                    map[string][]uint64 `json:"UserRoles"`
-			MutedRoleId                  uint64
-			MutedUsers                   []uint64
-			AutoRoleIds                  []uint64
-			LoggingChannelid             uint64
-			MessageLoggingIgnoreChannels []uint64
-			VerifiedRole                 uint64
-			VerifiedMessage              string
-			JoinMessage                  string
-			JoinMessageChannelId         uint64
-			PointsEnabled                bool
-			TrustedRoleId                uint64
-			TrustedRolePointsThreshold   int
-		}
 		var guilds []string
 
 		// read guilds file
@@ -73,7 +56,7 @@ var Import = &entities.Command{
 					"command":  "import",
 				}).Error("could not read config file")
 			}
-			var legConf legConfS
+			var legConf legacy.GuildConfig
 			err = json.Unmarshal(configBytes, &legConf)
 			if err != nil {
 				logging.Logger.WithFields(logrus.Fields{

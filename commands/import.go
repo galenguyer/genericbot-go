@@ -46,6 +46,7 @@ var Import = &entities.Command{
 					"messsage": c.Message.ID,
 					"command":  "import",
 				}).Error("could not open config file")
+				continue
 			}
 			configBytes, err := ioutil.ReadAll(configFile)
 			if err != nil {
@@ -55,6 +56,7 @@ var Import = &entities.Command{
 					"messsage": c.Message.ID,
 					"command":  "import",
 				}).Error("could not read config file")
+				continue
 			}
 			var legConf legacy.GuildConfig
 			err = json.Unmarshal(configBytes, &legConf)
@@ -65,6 +67,7 @@ var Import = &entities.Command{
 					"messsage": c.Message.ID,
 					"command":  "import",
 				}).Error("could not parse config file")
+				continue
 			}
 
 			var newAdminRoleIds []string
@@ -120,18 +123,18 @@ var Import = &entities.Command{
 
 			if err != nil {
 				c.Reply("An error occured retrieving the configuration for your server")
-				return err
+				continue
 			}
 
 			err = database.SaveGuildConfig(guild, c.Message.ID, conf)
 			if err != nil {
 				c.Reply("An error occured saving the configuration for your server")
-				return err
+				continue
 			}
 
 			_, err = c.Reply("imported guildconfig for " + guild)
 			if err != nil {
-				return err
+				continue
 			}
 		}
 		return nil

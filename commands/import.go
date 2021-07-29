@@ -37,6 +37,7 @@ var Import = &entities.Command{
 			return err
 		}
 
+		// import configs
 		for _, guild := range guilds {
 			configFile, err := os.Open("dump/" + guild + "-config.json")
 			if err != nil {
@@ -136,6 +137,50 @@ var Import = &entities.Command{
 			if err != nil {
 				continue
 			}
+		}
+		// import bans
+		for _, guild := range guilds {
+			banFile, err := os.Open("dump/" + guild + "-bans.json")
+			if err != nil {
+				logging.Logger.WithFields(logrus.Fields{
+					"error":    err,
+					"guild":    guild,
+					"messsage": c.Message.ID,
+					"command":  "import",
+				}).Error("could not open ban file")
+				continue
+			}
+			banBytes, err := ioutil.ReadAll(banFile)
+			if err != nil {
+				logging.Logger.WithFields(logrus.Fields{
+					"error":    err,
+					"guild":    guild,
+					"messsage": c.Message.ID,
+					"command":  "import",
+				}).Error("could not read ban file")
+				continue
+			}
+			var legBans []legacy.Ban
+			err = json.Unmarshal(banBytes, &legBans)
+			if err != nil {
+				logging.Logger.WithFields(logrus.Fields{
+					"error":    err,
+					"guild":    guild,
+					"messsage": c.Message.ID,
+					"command":  "import",
+				}).Error("could not parse ban file")
+				continue
+			}
+
+			for _, ban := range legBans {
+				fmt.Println(fmt.Sprint(ban.BannedUntil.UTC()))
+				database.SaveBan(guild, entities.Ban{
+					UserId: fmt.Sprint(ban.Id),
+					Reason: ban.Reason,
+					Until:  ban.BannedUntil,
+				})
+			}
+			c.Reply(fmt.Sprintf("imported %d bans for %s", len(legBans), guild))
 		}
 		return nil
 	},

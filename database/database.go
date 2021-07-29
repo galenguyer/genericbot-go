@@ -12,6 +12,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+type UpsertResult int
+
+const (
+	New     UpsertResult = 0
+	Updated UpsertResult = 1
+)
+
 var Client = Connect()
 
 func Connect() *mongo.Client {

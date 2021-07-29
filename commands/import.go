@@ -173,7 +173,6 @@ var Import = &entities.Command{
 			}
 
 			for _, ban := range legBans {
-				fmt.Println(fmt.Sprint(ban.BannedUntil.UTC()))
 				database.SaveBan(guild, entities.Ban{
 					UserId: fmt.Sprint(ban.Id),
 					Reason: ban.Reason,
@@ -181,6 +180,45 @@ var Import = &entities.Command{
 				})
 			}
 			c.Reply(fmt.Sprintf("imported %d bans for %s", len(legBans), guild))
+		}
+		// import custom commands
+		for _, guild := range guilds {
+			ccFile, err := os.Open("dump/" + guild + "-customCommands.json")
+			if err != nil {
+				logging.Logger.WithFields(logrus.Fields{
+					"error":    err,
+					"guild":    guild,
+					"messsage": c.Message.ID,
+					"command":  "import",
+				}).Error("could not open customCommands file")
+				continue
+			}
+			ccbytes, err := ioutil.ReadAll(ccFile)
+			if err != nil {
+				logging.Logger.WithFields(logrus.Fields{
+					"error":    err,
+					"guild":    guild,
+					"messsage": c.Message.ID,
+					"command":  "import",
+				}).Error("could not read customCommands file")
+				continue
+			}
+			var customCommands []entities.CustomCommand
+			err = json.Unmarshal(ccbytes, &customCommands)
+			if err != nil {
+				logging.Logger.WithFields(logrus.Fields{
+					"error":    err,
+					"guild":    guild,
+					"messsage": c.Message.ID,
+					"command":  "import",
+				}).Error("could not parse customCommands file")
+				continue
+			}
+
+			for _, command := range customCommands {
+				database.SaveCustomCommand(guild, command)
+			}
+			c.Reply(fmt.Sprintf("imported %d customCommands for %s", len(customCommands), guild))
 		}
 		return nil
 	},

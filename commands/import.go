@@ -220,6 +220,58 @@ var Import = &entities.Command{
 			}
 			c.Reply(fmt.Sprintf("imported %d customCommands for %s", len(customCommands), guild))
 		}
+		// import users
+		for _, guild := range guilds {
+			userFile, err := os.Open("dump/" + guild + "-users.json")
+			if err != nil {
+				logging.Logger.WithFields(logrus.Fields{
+					"error":    err,
+					"guild":    guild,
+					"messsage": c.Message.ID,
+					"command":  "import",
+				}).Error("could not open users file")
+				continue
+			}
+			userBytes, err := ioutil.ReadAll(userFile)
+			if err != nil {
+				logging.Logger.WithFields(logrus.Fields{
+					"error":    err,
+					"guild":    guild,
+					"messsage": c.Message.ID,
+					"command":  "import",
+				}).Error("could not read users file")
+				continue
+			}
+			var users []legacy.User
+			err = json.Unmarshal(userBytes, &users)
+			if err != nil {
+				logging.Logger.WithFields(logrus.Fields{
+					"error":    err,
+					"guild":    guild,
+					"messsage": c.Message.ID,
+					"command":  "import",
+				}).Error("could not parse users file")
+				continue
+			}
+
+			for _, user := range users {
+				var roleStore []string
+				for _, role := range user.RoleStore {
+					roleStore = append(roleStore, fmt.Sprint(role))
+				}
+				database.SaveUser(guild, entities.User{
+					Id:              fmt.Sprint(user.Id),
+					Usernames:       user.Usernames,
+					Nicknames:       user.Nicknames,
+					Warnings:        user.Warnings,
+					RoleStore:       roleStore,
+					Points:          user.Points,
+					LastPointsAdded: user.LastPointsAdded,
+					Messages:        user.Messages,
+				})
+			}
+			c.Reply(fmt.Sprintf("imported %d users for %s", len(users), guild))
+		}
 		return nil
 	},
 }

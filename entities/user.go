@@ -7,7 +7,7 @@ type User struct {
 	Usernames       []string
 	Nicknames       []string
 	Warnings        []string
-	Rolestore       []string
+	RoleStore       []string
 	Points          int
 	LastPointsAdded time.Time
 	Messages        int

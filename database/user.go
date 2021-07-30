@@ -12,7 +12,7 @@ import (
 )
 
 func SaveUser(guildId string, user entities.User) (UpsertResult, error) {
-	logging.Logger.WithFields(logrus.Fields{"module": "database", "method": "SaveCustomCommand", "guild": guildId, "user": user.Id}).Info("saving user")
+	logging.Logger.WithFields(logrus.Fields{"module": "database", "method": "SaveUser", "guild": guildId, "user": user.Id}).Info("saving user")
 
 	// set up context
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

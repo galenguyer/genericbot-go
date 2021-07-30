@@ -12,3 +12,6 @@
 - [ ] Migrate `giveaways`
 - [ ] Migrate `quotes` (no work needed)
 - [ ] Migrate `users`
+  - [ ] `getUserById()`
+  - [ ] `searchUsers()`
+

@@ -20,10 +20,10 @@ type User struct {
 func (u User) String() string {
 	var output string
 
-	output += fmt.Sprintf("User: <@!%s>\n", u.Id)
-	output += fmt.Sprintf("Id: `%s`\n", u.Id)
+	output += fmt.Sprintf("**User:** <@!%s>\n", u.Id)
+	output += fmt.Sprintf("**Id:** `%s`\n", u.Id)
 
-	usernames := "Usernames: "
+	usernames := "**Usernames:** "
 	if len(u.Usernames) > 0 {
 		for _, un := range u.Usernames {
 			usernames += fmt.Sprintf("`%s`, ", strings.ReplaceAll(un, "`", "'"))
@@ -34,7 +34,7 @@ func (u User) String() string {
 	}
 	output += usernames + "\n"
 
-	nicknames := "Nicknames: "
+	nicknames := "**Nicknames:** "
 	if len(u.Nicknames) > 0 {
 		for _, nn := range u.Nicknames {
 			nicknames += fmt.Sprintf("`%s`, ", strings.ReplaceAll(nn, "`", "'"))
@@ -45,7 +45,7 @@ func (u User) String() string {
 	}
 	output += nicknames + "\n"
 
-	warnings := "Warnings: "
+	warnings := "**Warnings:** "
 	if len(u.Warnings) > 0 {
 		for _, w := range u.Warnings {
 			warnings += fmt.Sprintf("%s, ", w)

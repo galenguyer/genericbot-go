@@ -32,8 +32,8 @@ func OnMessageRecieved(s *discordgo.Session, m *discordgo.MessageCreate, config 
 	command := parseCommand(m.Message.Content, config)
 	if command != nil {
 		commandToExecute := linq.From(Commands).FirstWith(func(i interface{}) bool {
-			return i.(*entities.Command).Name == command.Name || linq.From(i.(*entities.Command).Aliases).AnyWith(func(x interface{}) bool {
-				return x.(string) == command.Name
+			return strings.EqualFold(i.(*entities.Command).Name, command.Name) || linq.From(i.(*entities.Command).Aliases).AnyWith(func(x interface{}) bool {
+				return strings.EqualFold(x.(string), command.Name)
 			})
 		})
 

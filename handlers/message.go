@@ -20,6 +20,7 @@ var (
 func init() {
 	Commands = append(Commands, commands.Config)
 	Commands = append(Commands, commands.Echo)
+	Commands = append(Commands, commands.Find)
 	Commands = append(Commands, commands.Import)
 	Commands = append(Commands, commands.Mock)
 	Commands = append(Commands, commands.Ping)

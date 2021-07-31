@@ -40,7 +40,7 @@ var Find = &entities.Command{
 			} else if user == nil {
 				c.Reply("I couldn't find a user with that ID")
 			} else {
-				c.ReplySplit(user.String(), "`,")
+				c.SendMessageSplit(user.String())
 			}
 		} else {
 			// if we're given a string to search for

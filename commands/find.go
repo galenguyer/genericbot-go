@@ -12,6 +12,7 @@ import (
 
 var Find = &entities.Command{
 	Name:        "find",
+	Aliases:     []string{"whois"},
 	Description: "Search for a user from the database",
 	Usage:       "<userid>",
 	Permissions: permissions.Moderator,

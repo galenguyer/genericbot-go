@@ -8,6 +8,7 @@ import (
 
 type Command struct {
 	Name        string
+	Aliases     []string
 	Description string
 	Usage       string
 	Permissions permissions.PermissionLevel

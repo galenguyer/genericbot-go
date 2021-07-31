@@ -4,9 +4,10 @@ services:
     build: .
     container_name: genericbot
     env_file: .env
+    depends_on:
+      - mongodb
   mongodb:
     # mongodb 5 seems to not run on debian 10
-    #image: mongo:5.0.0-focal
     image: mongo:4.4.7-focal
     container_name: mongodb
     command: "mongod --bind_ip 0.0.0.0"
@@ -16,7 +17,6 @@ services:
       - type: volume
         source: mongodb
         target: /data/db
-#      - ./devdump.tar:/tmp/db.tar
 
 volumes:
   mongodb:

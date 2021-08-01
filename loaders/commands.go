@@ -60,7 +60,7 @@ func init() {
 	Commands = append(Commands, commands.Time)
 
 	sort.Slice(Commands, func(i, j int) bool {
-		return Commands[i].Name > Commands[j].Name
+		return Commands[i].Name < Commands[j].Name
 	})
 
 	logging.Logger.WithFields(logrus.Fields{"module": "handlers", "method": "init"}).Infof("loaded %d commands", len(Commands))

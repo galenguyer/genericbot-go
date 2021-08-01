@@ -72,14 +72,28 @@ func getPermissions(s *discordgo.Session, m *discordgo.MessageCreate, config *co
 	if guild.OwnerID == m.Author.ID {
 		return permissions.GuildOwner
 	}
-
-	member, err := s.GuildMember(m.GuildID, m.Author.ID)
 	if err != nil {
 		return permissions.User
 	}
-	if member.Permissions&discordgo.PermissionAdministrator == discordgo.PermissionAdministrator {
+
+	if hasPermission(s, m, discordgo.PermissionAdministrator) {
 		return permissions.Administrator
 	}
 
 	return permissions.User
+}
+
+func hasPermission(session *discordgo.Session, message *discordgo.MessageCreate, permission int64) bool {
+	member, _ := session.GuildMember(message.GuildID, session.State.User.ID)
+	guildRoles, _ := session.GuildRoles(message.GuildID)
+	for _, role := range guildRoles {
+		for _, roleID := range member.Roles {
+			if role.ID == roleID {
+				if role.Permissions&permission != 0 {
+					return true
+				}
+			}
+		}
+	}
+	return false
 }

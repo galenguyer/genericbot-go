@@ -2,6 +2,7 @@ package logging
 
 import (
 	"os"
+	"runtime"
 
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
@@ -28,4 +29,12 @@ func init() {
 		logrus.FatalLevel: path,
 		logrus.PanicLevel: path,
 	}, &logrus.JSONFormatter{}))
+}
+
+func Trace() runtime.Frame {
+	pc := make([]uintptr, 15)
+	n := runtime.Callers(2, pc)
+	frames := runtime.CallersFrames(pc[:n])
+	frame, _ := frames.Next()
+	return frame
 }

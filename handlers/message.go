@@ -5,35 +5,16 @@ import (
 
 	linq "github.com/ahmetb/go-linq/v3"
 	"github.com/bwmarrin/discordgo"
-	"github.com/galenguyer/genericbot/commands"
 	"github.com/galenguyer/genericbot/config"
 	"github.com/galenguyer/genericbot/entities"
-	"github.com/galenguyer/genericbot/logging"
+	"github.com/galenguyer/genericbot/loaders"
 	"github.com/galenguyer/genericbot/permissions"
-	"github.com/sirupsen/logrus"
 )
-
-var (
-	Commands []*entities.Command
-)
-
-func init() {
-	Commands = append(Commands, commands.Config)
-	Commands = append(Commands, commands.Echo)
-	Commands = append(Commands, commands.Find)
-	Commands = append(Commands, commands.GitHub)
-	Commands = append(Commands, commands.Import)
-	Commands = append(Commands, commands.Mock)
-	Commands = append(Commands, commands.Ping)
-	Commands = append(Commands, commands.RoleStore)
-	Commands = append(Commands, commands.Time)
-	logging.Logger.WithFields(logrus.Fields{"module": "handlers", "method": "init"}).Infof("loaded %d commands", len(Commands))
-}
 
 func OnMessageRecieved(s *discordgo.Session, m *discordgo.MessageCreate, config *config.Config) {
 	command := parseCommand(m.Message.Content, config)
 	if command != nil {
-		commandToExecute := linq.From(Commands).FirstWith(func(i interface{}) bool {
+		commandToExecute := linq.From(loaders.Commands).FirstWith(func(i interface{}) bool {
 			return strings.EqualFold(i.(*entities.Command).Name, command.Name) || linq.From(i.(*entities.Command).Aliases).AnyWith(func(x interface{}) bool {
 				return strings.EqualFold(x.(string), command.Name)
 			})
